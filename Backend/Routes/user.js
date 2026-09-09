@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import User from "../model/user.js";
 import { generateToken, verifyToken } from "../services/auth.js";
 import { authMiddleware } from "../middleware/auth.js";
-import { handleLogin, handleRegisteration, handleTaskauthme } from "../Controllers/user.js";
+import { handleLogin, handleLogout, handleRegisteration, handleTaskauthme } from "../Controllers/user.js";
 
 const userRouter = Router();
 
@@ -14,9 +14,6 @@ userRouter.post('/login', handleLogin);
 
 userRouter.get('/me', authMiddleware , handleTaskauthme);
 
-userRouter.get('/logout', (req, res) => {
-    res.clearCookie('token', {httpOnly: true});
-    res.status(200).json({msg: 'cookie cleared and user logged out'})
-})
+userRouter.post('/logout', handleLogout);
 
 export default userRouter;

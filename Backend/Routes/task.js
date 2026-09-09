@@ -10,11 +10,11 @@ TaskRouter.route('/')
 .post(authMiddleware, handleCreateNewTask)
 
 TaskRouter.route('/:id')
-.get(handleGetTaskById)
+.get(authMiddleware, handleGetTaskById)
 
-.patch(handleUpdateTaskById)
+.patch(authMiddleware, handleUpdateTaskById)
 
-.delete(handleDeleteTaskById)
+.delete(authMiddleware, handleDeleteTaskById)
 
 
 export default TaskRouter;

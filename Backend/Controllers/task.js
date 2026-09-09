@@ -3,68 +3,95 @@ import { authMiddleware } from "../middleware/auth.js";
 
 
 export const handleAllTasks =  async (req, res) => {   
-    const tasks = await Task.find({});
-    if(tasks.length === 0) return res.status(404).send({msg: "NO Task Found"});
-
-    res.status(201).json({tasks});
+    try {
+        const tasks = await Task.find({createdBy: req.user._id});
+    
+        res.status(200).json({tasks});
+        
+    } catch (error) {
+        res.send(error);
+    }
 
 }
 
 export const handleCreateNewTask = async (req, res) => {
-    const {title, description, priority, status, dueDate} = req.body;
+    try {
+        const {title, description, priority, status, dueDate} = req.body;
 
-   const task =  await Task.create({
-        title,
-        description,
-        priority,
-        status,
-        dueDate,
-        createdBy: req.user._id,
-    })
+        const task =  await Task.create({
+            title,
+            description,
+            priority,
+            status,
+            dueDate,
+            createdBy: req.user._id,
+        })
 
-    res.status(201).json({task});
+        res.status(201).json({task});
+
+    } catch (error) {
+        
+        res.send(error)
+
+    }
 
 }
 
 // id.
 export const handleGetTaskById = async (req, res) => {
-    const id = req.params.id;
-    if(!id) return res.status(400).send({msg: 'cannot find id'});
+    try {
+        const id = req.params.id;
+        if(!id) return res.status(400).send({msg: 'cannot find id'});
 
-    const task = await Task.find({id});
-    if(!task) return res.status(404).send({msg: "No Task Found"})
+        const task = await Task.find({_id: id, createdBy: req.user._id});
+        if(!task) return res.status(404).send({msg: "No Task Found"})
 
-    res.status(201).json({task});
+        res.status(200).json({task});
+    } catch (error) {
+        res.send(error);
+    }
 
 }
 
 export const handleUpdateTaskById = async (req, res) => {
-    const id = req.params.id;
-    if(!id) return res.status(400).send({msg: 'cannot find id'});
-    const {title, description, priority, status, dueDate} = req.body;
+    try {
 
-    const updates = {};
-    if(title !== undefined || null) updates.title = title;
-    if(description !== undefined || null) updates.description = description;
-    if(priority !== undefined || null) updates.priority = priority;
-    if(status !== undefined || null) updates.status = status;
-    if(dueDate !== undefined || null) updates.dueDate = dueDate;
+        const id = req.params.id;
+        if(!id) return res.status(400).send({msg: 'cannot find id'});
+        const {title, description, priority, status, dueDate} = req.body;
 
-    const updatedTask = await Task.findByIdAndUpdate( {_id: id}, { $set: updates  } );
-    console.log(updatedTask);
+        const updates = {};
+        if(title !== undefined && title !== null) updates.title = title;
+        if(description !== undefined && description !==  null) updates.description = description;
+        if(priority !== undefined && priority !==  null) updates.priority = priority;
+        if(status !== undefined && status !== null) updates.status = status;
+        if(dueDate !== undefined && dueDate !== null) updates.dueDate = dueDate;
 
-    if(!updatedTask) return res.status(404).send({msg: 'updated task not found'});
+        const updatedTask = await Task.findByIdAndUpdate( {_id: id, createdBy: req.user._id}, { $set: updates  }, {new: true, runValidators: true});
+        console.log(updatedTask);
 
-    res.status(200).json({task: updatedTask});
+        if(!updatedTask) return res.status(404).send({msg: 'updated task not found'});
+
+        res.status(200).json({task: updatedTask});
+
+    } catch (error) {
+        
+        res.send(error);
+
+    }
 
 }
 
 export const handleDeleteTaskById = async (req, res) => {
-    const id = req.params.id;
-    if(!id) return res.status(400).send({msg: 'cannot find id'});
+    try {
+        const id = req.params.id;
+        if(!id) return res.status(400).send({msg: 'cannot find id'});
 
-    await Task.findByIdAndDelete({_id: id});
+        await Task.findByIdAndDelete({_id: id, createdBy: req.user._id});
 
-    res.status(201).json({msg: "Task Deleted"})
+        res.status(201).json({msg: "Task Deleted"})
+    } catch (error) {
+        res.send(error)
+    }
 
 }

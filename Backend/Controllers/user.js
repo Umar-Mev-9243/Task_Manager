@@ -3,7 +3,8 @@ import bcrypt from 'bcrypt';
 import { generateToken } from "../services/auth.js";   
 
 export const handleRegisteration = async (req, res) => {
-    const {name, email, password} = req.body;
+    try {
+        const {name, email, password} = req.body;
     
     const userExist = await User.findOne({email});
     if(userExist) return res.status(401).send({message: 'User already exist'})
@@ -17,7 +18,14 @@ export const handleRegisteration = async (req, res) => {
     })
 
     const token = generateToken(user);
-    res.cookie('token', token, {httpOnly: true});
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    res.cookie('token', token, {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000
+    });
 
     const safeUser = {
         _id: user._id,
@@ -30,10 +38,14 @@ export const handleRegisteration = async (req, res) => {
         message: 'User registered Successfully',
         user: safeUser
     });
+    } catch (error) {
+        res.send(error)
+    }
 }
 
 export const handleLogin = async (req, res) =>{
-    const {email, password} = req.body;
+   try {
+     const {email, password} = req.body;
 
     const user = await User.findOne({email});
     if(!user) return res.status(401).send({message: 'User does not exist'});
@@ -42,7 +54,14 @@ export const handleLogin = async (req, res) =>{
     if(!isPasswordCorrect) return res.status(401).send({message: 'invalid password'});
 
     const token = generateToken(user);
-    res.cookie('token', token, {httpOnly: true});
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    res.cookie('token', token, {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000
+    });
 
     const safeUser = {
         _id: user._id,
@@ -55,11 +74,15 @@ export const handleLogin = async (req, res) =>{
         message: 'login successfull',
         user: safeUser
     });
+   } catch (error) {
+        res.send(error);
+   }
 
 }
 
 export const handleTaskauthme = async (req, res) => {
-    const user = await User.findById(req.user._id).select('-password');
+    try {
+        const user = await User.findById(req.user._id).select('-password');
 
     if(!user){
         return res.status(404).json({
@@ -77,4 +100,29 @@ export const handleTaskauthme = async (req, res) => {
     res.json({
         user: safeUser
     });
+
+    } catch (error) {
+        res.send(error);
+    }
+}
+
+export const handleLogout = (req, res) => {
+    try {
+        const isProduction = process.env.NODE_ENV === 'production';
+
+        res.clearCookie('token', {
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: isProduction ? 'none' : 'lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
+
+        res.status(200).json({msg: 'cookie cleared and user logged out'});
+
+    } catch (error) {
+
+        res.send(error);
+        
+    }
+    
 }
