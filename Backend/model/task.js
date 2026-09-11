@@ -22,7 +22,7 @@ const taskSchema = mongoose.Schema({
         enum:['pending', 'completed'],
         default: 'pending'
     },
-    duedate:{
+    dueDate:{
         type: Date
     },
     createdBy:{

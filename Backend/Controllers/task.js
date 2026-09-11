@@ -1,5 +1,4 @@
 import Task from "../model/task.js";
-import { authMiddleware } from "../middleware/auth.js";
 
 
 export const handleAllTasks =  async (req, res) => {   
@@ -9,7 +8,9 @@ export const handleAllTasks =  async (req, res) => {
         res.status(200).json({tasks});
         
     } catch (error) {
-        res.send(error);
+        res.status(500).json({
+            message: 'Internal server error'
+        })
     }
 
 }
@@ -31,7 +32,9 @@ export const handleCreateNewTask = async (req, res) => {
 
     } catch (error) {
         
-        res.send(error)
+        resstatus(500).json({
+            message: 'Internal server error'
+        })
 
     }
 
@@ -43,12 +46,14 @@ export const handleGetTaskById = async (req, res) => {
         const id = req.params.id;
         if(!id) return res.status(400).send({msg: 'cannot find id'});
 
-        const task = await Task.find({_id: id, createdBy: req.user._id});
+        const task = await Task.findOne({_id: id, createdBy: req.user._id});
         if(!task) return res.status(404).send({msg: "No Task Found"})
 
         res.status(200).json({task});
     } catch (error) {
-        res.send(error);
+        res.status(500).json({
+            message: 'Internal server error'
+        })
     }
 
 }
@@ -76,7 +81,9 @@ export const handleUpdateTaskById = async (req, res) => {
 
     } catch (error) {
         
-        res.send(error);
+        res.status(500).json({
+            message: 'Internal server error'
+        })
 
     }
 
@@ -89,9 +96,11 @@ export const handleDeleteTaskById = async (req, res) => {
 
         await Task.findByIdAndDelete({_id: id, createdBy: req.user._id});
 
-        res.status(201).json({msg: "Task Deleted"})
+        res.status(200).json({msg: "Task Deleted"})
     } catch (error) {
-        res.send(error)
+        resstatus(500).json({
+            message: 'Internal server error'
+        })
     }
 
 }

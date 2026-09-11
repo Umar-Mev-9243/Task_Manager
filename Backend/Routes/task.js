@@ -1,5 +1,4 @@
 import { Router } from "express"
-import Task from "../model/task.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { handleAllTasks, handleCreateNewTask, handleDeleteTaskById, handleGetTaskById, handleUpdateTaskById } from "../Controllers/task.js";
 

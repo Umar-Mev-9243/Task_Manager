@@ -5,7 +5,7 @@ import JWT from 'jsonwebtoken'
 const secret_key = process.env.JWTSECRETKEY;
 
 if(!secret_key){
-    console.log('NO!, secret key found');
+    throw new Error('JWTSECRETKEY is not configured');
 }
 
 export const generateToken = (user) => {

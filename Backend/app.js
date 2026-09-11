@@ -55,4 +55,4 @@ app.get('/health', (req, res) => {
 
 startServer();
 
-export default app;
+// export default app;
