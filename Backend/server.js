@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import express from 'express';
-import MongodbConnection from './conection.js';
+import MongodbConnection from './connection.js';
 import userRoute from './Routes/user.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -19,8 +19,18 @@ app.use(cors({
     credentials: true
 }));
 
+const startServer = async () => {
+    try {
+        await MongodbConnection(process.env.MONGO_DB_URL);
 
-MongodbConnection(process.env.MONGO_DB_URL || 'mongodb://localhost:27017/Task_db');
+        app.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
+        });
+    } catch (error) {
+        console.error('MongoDB connection failed:', error);
+        process.exit(1);
+    }
+};
 
 app.use(express.urlencoded({extended: false}));
 app.use(express.json());
@@ -42,8 +52,7 @@ app.get('/health', (req, res) => {
     })
 })
 
-// app.listen(PORT, () => {
-//         console.log(`Server running on port ${PORT}`)
-//     })
+
+startServer();
 
 export default app;
