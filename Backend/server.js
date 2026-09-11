@@ -19,20 +19,8 @@ app.use(cors({
     credentials: true
 }));
 
-const startServer = async () => {
-    try {
-       await MongodbConnection(process.env.MONGO_DB_URL || 'mongodb://localhost:27017/Task_db');
 
-       app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`)
-       })
-
-        
-    } catch (error) {
-        console.error('Database connection failure: ', error)
-        process.exit(1)
-    }
-};
+MongodbConnection(process.env.MONGO_DB_URL || 'mongodb://localhost:27017/Task_db');
 
 app.use(express.urlencoded({extended: false}));
 app.use(express.json());
@@ -54,5 +42,7 @@ app.get('/health', (req, res) => {
     })
 })
 
-startServer();
+app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`)
+    })
 // app.listen(PORT, () => console.log(`Server running on PORT: http://localhost:${PORT}`));
