@@ -3,9 +3,9 @@ import express from 'express';
 import MongodbConnection from './conection.js';
 import userRoute from './Routes/user.js';
 import cors from 'cors';
-import { authMiddleware } from './middleware/auth.js';
 import cookieParser from 'cookie-parser';
 import TaskRouter from './Routes/task.js';
+import  helmet from 'helmet';
 
 dotenv.config();
 
