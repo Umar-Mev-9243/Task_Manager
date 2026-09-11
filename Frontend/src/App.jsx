@@ -21,7 +21,7 @@ export default function App() {
         <Route path="/tasks/new" element={<CreateTask />} />
         <Route path="/tasks/:id/edit" element={<EditTask />} />
       </Route>
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
