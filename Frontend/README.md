@@ -24,7 +24,7 @@ npm run dev
 
 Set the backend base URL in `.env`:
 ```env
-VITE_API_URL=http://localhost:8000/api
+VITE_API_URL=https://task-manager-six-kappa-47.vercel.app
 ```
 
 ## Expected backend endpoints

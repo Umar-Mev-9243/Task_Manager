@@ -1,49 +1,71 @@
 import dotenv from 'dotenv';
 import express from 'express';
-import MongodbConnection from './connection.js';
-import userRoute from './Routes/user.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
+
+import MongodbConnection from './connection.js';
+import userRoute from './Routes/user.js';
 import TaskRouter from './Routes/task.js';
-import  helmet from 'helmet';
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 8000;
+
+const allowedOrigins = (process.env.FRONTEND_URL || '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 app.use(helmet());
 
-app.use(cors({
-    origin: process.env.FRONTEND_URL,
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error('Origin is not allowed by CORS'));
+    },
     credentials: true
-}));
+  })
+);
 
-MongodbConnection(process.env.MONGO_DB_URL);
-
-app.use(express.urlencoded({extended: false}));
+app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
-app.use((err, req, res, next) => {
-    console.log(err)
 
-    res.status(500).json({
-        msg: 'Internal Server Error'
-    })
-})
+app.get('/', (req, res) => {
+  res.status(200).json({
+    service: 'task-manager-api',
+    status: 'ok'
+  });
+});
+
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
+app.use('/api', async (req, res, next) => {
+  try {
+    await MongodbConnection(process.env.MONGO_DB_URL);
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 app.use('/api/auth', userRoute);
 app.use('/api/tasks', TaskRouter);
 
-app.get('/health', (req, res) => {
-    res.status(200).json({
-        status: 'ok'
-    })
-})
-
-
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+app.use((req, res) => {
+  res.status(404).json({ message: 'Route not found' });
 });
 
-// export default app;
+app.use((error, req, res, next) => {
+  console.error(error);
+  res.status(500).json({ message: 'Internal server error' });
+});
+
+export default app;
