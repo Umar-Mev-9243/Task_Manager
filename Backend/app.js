@@ -19,7 +19,7 @@ app.use(cors({
     credentials: true
 }));
 
-await MongodbConnection(process.env.MONGO_DB_URL);
+MongodbConnection(process.env.MONGO_DB_URL);
 
 app.use(express.urlencoded({extended: false}));
 app.use(express.json());
