@@ -21,13 +21,7 @@ app.use(helmet());
 
 app.use(
   cors({
-    origin(origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-
-      return callback(new Error('Origin is not allowed by CORS'));
-    },
+    origin: process.env.FRONTEND_URL,
     credentials: true
   })
 );
